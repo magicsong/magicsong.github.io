@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="安装,docker,k8s,kubernetes," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="随着docker的流行，越来越多企业采用了容器技术作为IT部门的基础架构，越来越多的运用在了生产环境中。生产环境中各个应用都是以微服务的形式分布在各个主机中，k8s就是这样用于在分布式系统中管理容器的一种编排工具，提供基本的部署，维护以及运用伸缩。">
+<meta name="keywords" content="安装,docker,k8s,kubernetes">
+<meta property="og:type" content="article">
+<meta property="og:title" content="离线安装最新版kubernetes（1.10）">
+<meta property="og:url" content="https://magicsong.github.io/2018/04/08/科学安装最新版kubernetes/index.html">
+<meta property="og:site_name" content="魔术师的博客">
+<meta property="og:description" content="随着docker的流行，越来越多企业采用了容器技术作为IT部门的基础架构，越来越多的运用在了生产环境中。生产环境中各个应用都是以微服务的形式分布在各个主机中，k8s就是这样用于在分布式系统中管理容器的一种编排工具，提供基本的部署，维护以及运用伸缩。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://magicsong.github.io/2018/04/08/科学安装最新版kubernetes/2018-04-08_114922.jpg">
+<meta property="og:updated_time" content="2018-06-20T06:22:45.321Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="离线安装最新版kubernetes（1.10）">
+<meta name="twitter:description" content="随着docker的流行，越来越多企业采用了容器技术作为IT部门的基础架构，越来越多的运用在了生产环境中。生产环境中各个应用都是以微服务的形式分布在各个主机中，k8s就是这样用于在分布式系统中管理容器的一种编排工具，提供基本的部署，维护以及运用伸缩。">
+<meta name="twitter:image" content="https://magicsong.github.io/2018/04/08/科学安装最新版kubernetes/2018-04-08_114922.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://magicsong.github.io/2018/04/08/科学安装最新版kubernetes/"/>
+
+
+
+
+
+  <title>离线安装最新版kubernetes（1.10） | 魔术师的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">魔术师的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">好好吃饭，明天的烦恼明天再烦</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://magicsong.github.io/2018/04/08/科学安装最新版kubernetes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="MagicSong">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="魔术师的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">离线安装最新版kubernetes（1.10）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-08T09:12:43+08:00">
+                2018-04-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/docker/" itemprop="url" rel="index">
+                    <span itemprop="name">docker</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>随着docker的流行，越来越多企业采用了容器技术作为IT部门的基础架构，越来越多的运用在了生产环境中。生产环境中各个应用都是以微服务的形式分布在各个主机中，k8s就是这样用于在分布式系统中管理容器的一种编排工具，提供基本<br>的部署，维护以及运用伸缩。<br> <a id="more"></a></p>
+</blockquote>
+<h1 id="1-简介"><a href="#1-简介" class="headerlink" title="1. 简介"></a>1. 简介</h1><p><strong>Kubernetes </strong>是 Google 团队发起的开源项目，它的目标是管理跨多个主机的容器，主要实现语言为 Go 语言。Kubernetes 构建于 Google 数十年经验，一大半来源于 Google 生产环境规模的经验。结合了社区最佳的想法和实践。在分布式系统中，部署，调度，伸缩一直是最为重要的也最为基础的功能。Kubernets 就是希望解决这一序列问题的。Kubernetes 有如下这些特点：</p>
+<ul>
+<li>易学：轻量级，简单，容易理解</li>
+<li>便携：支持公有云，私有云，混合云，以及多种云平台</li>
+<li>可拓展：模块化，可插拔，支持钩子，可任意组合</li>
+<li>自修复：自动重调度，自动重启，自动复制</li>
+</ul>
+<p>也是由于这些特点，k8s已经成为大多数企业的容器编排工具，而docker官方的<strong>docker swarm</strong> 则由于后知后觉的缘故而使用较少（docker swarm是最新版本的docker自带的，无需安装，使用简单，初学容器编排时可以尝试一下）。</p>
+<blockquote>
+<p>学习k8s有一定的难度，本文着重于介绍如何搭建一个可用的k8s集群，后续会写一些文章重点学习k8s的一些key concept。</p>
+</blockquote>
+<h1 id="2-安装Kubernetes"><a href="#2-安装Kubernetes" class="headerlink" title="2. 安装Kubernetes"></a>2. 安装Kubernetes</h1><p>k8s官方文档中介绍了很多种部署k8s集群的方式，有单机实验性质的，本地多机部署方式，也有云端部署的方式，本文介绍的是第二种<strong>本地多机部署</strong>——即利用本地多台机器部署一个k8s集群，其他方式可以参看<a href="https://kubernetes.io/docs/home/" target="_blank" rel="noopener">官方文档</a>。需要注意的是，官方文档提供的部署方式由于一些不可描述原因在我国实施起来有一定难度，所以本文的安装需要<strong>科学上网</strong>。并且，本次实验的三台主机都是在局域网中，没有联机权限，所以并不要求服务器能够科学上网。<br>在我安装的时候，最新版的k8s的版本是<code>1.10</code>，和其他版本的安装过程是相似的。</p>
+<h2 id="Prerequisites-检查"><a href="#Prerequisites-检查" class="headerlink" title="Prerequisites 检查"></a>Prerequisites 检查</h2><p>在参照本文部署最新版k8s前，请一定要注意k8s安装的前置条件，现在罗列如下，请依依对照，一条不可漏下。</p>
+<ol>
+<li>有一台能够科学上网的机器，下载相关的软件和镜像</li>
+<li>下列操作系统之一<ul>
+<li>Ubuntu 16.04+</li>
+<li>Debian 9</li>
+<li>CentOS 7</li>
+<li>RHEL 7</li>
+<li>Fedora 25/26 (best-effort)</li>
+<li>HypriotOS v1.0.1+</li>
+<li>Container Linux (tested with 1576.4.0)</li>
+</ul>
+</li>
+<li>每台主机至少2G内存，双核</li>
+<li>集群中所有主机互相访问没有限制（无论是公网还是私有网卡）<strong>UPDATE</strong>，这里我踩了一个超级大坑，我司申请的两台机器互相访问无限制往往是TCP端口无限制，但是k8s需要用到UDP。所以一定要确保节点之间UDP访问也无限制！</li>
+<li>主机名，MAC地址，产品UUID必须不同（一般都是不同的，除非是用的是复制的虚拟机）</li>
+<li>如果使用了防火墙，必须打开一些指定端口（下文会讲到，如果嫌麻烦，直接关了防火墙，本次实验没有关闭防火墙）</li>
+<li>禁用SWAP内存。可以使用命令<code>swapoff -a</code>，其他方式也可以。</li>
+</ol>
+<p>下面列出安装k8s会使用到端口，如果使用防火墙的话，请将这些端口打开（我在实验时遇到了一个坑就是端口问题，我在防火墙配置了三个节点互相访问没有限制，但是这还不是不够的，一些容器是通过虚拟网卡访问接口的，所以还是需要打开一些额外的端口。这里事先记录一下，如果在安装过程中打开了防火墙，并且也配置了三个节点ip互相访问没有限制，那么还需要再打开的默认端口——在不修改默认端口的前提下——6443，10250-10252，请确保这些端口对公可访问，<strong>在初始化的时候会提示你打开这些端口</strong>）。<br><strong>master节点</strong></p>
+<table>
+<thead>
+<tr>
+<th>协议</th>
+<th>方向</th>
+<th>端口</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TCP</td>
+<td>Inbound</td>
+<td>6443</td>
+<td>k8s api 服务器</td>
+</tr>
+<tr>
+<td>TCP</td>
+<td>Inbound</td>
+<td>2379-2380</td>
+<td>etcd 客户端API</td>
+</tr>
+<tr>
+<td>TCP</td>
+<td>Inbound</td>
+<td>10250</td>
+<td>Kubelet API</td>
+</tr>
+<tr>
+<td>TCP</td>
+<td>Inbound</td>
+<td>10251</td>
+<td>kube-scheduler</td>
+</tr>
+<tr>
+<td>TCP</td>
+<td>Inbound</td>
+<td>10252</td>
+<td>kube-controller-manager</td>
+</tr>
+<tr>
+<td>TCP</td>
+<td>Inbound</td>
+<td>10255</td>
+<td>Read-only Kubelet API</td>
+</tr>
+</tbody>
+</table>
+<p><strong>worker节点</strong></p>
+<table>
+<thead>
+<tr>
+<th>协议</th>
+<th>方向</th>
+<th>端口</th>
+<th>目的</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TCP</td>
+<td>Inbound</td>
+<td>10250</td>
+<td>Kubelet API</td>
+</tr>
+<tr>
+<td>TCP</td>
+<td>Inbound</td>
+<td>10255</td>
+<td>Read-only Kubelet API</td>
+</tr>
+<tr>
+<td>TCP</td>
+<td>Inbound</td>
+<td>30000-32767</td>
+<td>服务端口</td>
+</tr>
+</tbody>
+</table>
+<p><em>如果需要修改一些默认端口，那么需要确保修改后的端口也打开。</em></p>
+<h2 id="安装docker"><a href="#安装docker" class="headerlink" title="安装docker"></a>安装docker</h2><p>docker 的安装可以参考此文：<a href="http://itdocker.rd.tp-link.net:9002/2018/03/14/Docker%E9%83%A8%E7%BD%B2%E6%8C%87%E5%8D%97/" target="_blank" rel="noopener">docker部署指南</a><br>如果是运行在公网中的服务器，请查看官方文档。</p>
+<h2 id="安装kudeadm"><a href="#安装kudeadm" class="headerlink" title="安装kudeadm"></a>安装kudeadm</h2><p>本次实验使用了三台centos7.4的主机，安装的docker使用了最新的docker-ce。</p>
+<p>kubeadm 是google公司用来简化k8s集群搭建的一个工具，安装完kubeadm之后，只需要一行命令就可以初始化一个集群的master节点，非常方便。安装kubeadm的时候，还需要安装kubelet和kubectl，这两个工具是用来管理集群的工具，kubeadm本身不会安装这两个工具。需要注意kubeadm和这两工具的版本需要一致，此次的版本都是1.10。由于服务器不能上网，此次我们需要手动安装rpm包。在一台能科学上网的机器上输入以下网址（这个网址其实就是google提供的yum源中软件的安装位置）：<a href="https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64/repodata/primary.xml" target="_blank" rel="noopener">https://packages.cloud.google.com/yum/repos/kubernetes-el7-x86_64/repodata/primary.xml</a><br>这个xml文件中包括了所有需要的rpm包和其依赖项，本次安装需要用到下面4个包：</p>
+<ul>
+<li>kubeadm</li>
+<li>kubectl </li>
+<li>kubelet</li>
+<li>kubernetes-cni </li>
+</ul>
+<p>请在上面的xml找到上面软件的最新版（大部分是1.10，如果不是，请确保是在上述xml文件中是最新的），复制其对应的地址进行下载，下载完成之后将rpm包传输到所有服务器节点即可。本次下载的截图如下：<br><img src="/2018/04/08/科学安装最新版kubernetes/2018-04-08_114922.jpg" title="所需的安装包"><br>下载完成之后，在所有节点安装这些程序：<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">setenforce 0</span><br><span class="line">yum install -y *.rpm</span><br><span class="line">systemctl <span class="built_in">enable</span> kubelet &amp;&amp; systemctl start kubelet</span><br></pre></td></tr></table></figure></p>
+<h2 id="后续配置"><a href="#后续配置" class="headerlink" title="后续配置"></a>后续配置</h2><blockquote>
+<p>安装完成之后需要进行一系列和k8s配置相关的后续操作。有一些操作需要在所有节点进行，而有一些只需要在master 节点进行。</p>
+</blockquote>
+<p>需要注意<code>setenforce 0</code>，目前k8s的大部分网络插件都无法在selinux下运行，所以需要将selinux关闭。如果在安装网络插件的过程中遇到问题。可以检查一下是否是这个问题（当初就是踩了这个坑）。另外如果和我一样操作系统也是centos7，那么还需要进行下面的配置：<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cat &lt;&lt;EOF &gt;  /etc/sysctl.d/k8s.conf</span><br><span class="line">net.bridge.bridge-nf-call-ip6tables = 1</span><br><span class="line">net.bridge.bridge-nf-call-iptables = 1</span><br><span class="line">EOF</span><br><span class="line">sysctl --system</span><br></pre></td></tr></table></figure></p>
+<p>请注意。上述所有操作在<strong>所有节点</strong>都要进行。<strong>网络插件的安装我遇到了不少问题，这部分大家可以参考我的，一步一步谨慎操作。</strong><br>除了网络配置，还需要检查主节点k8s cgroup driver是否和docker 的cgroup driver相同，如果不相同需要相同。这一步只需要在主节点完成。<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#检查下面两个命令的输出</span></span><br><span class="line">docker info | grep -i cgroup</span><br><span class="line">cat /etc/systemd/system/kubelet.service.d/10-kubeadm.conf</span><br><span class="line"></span><br><span class="line"><span class="comment">#如果不相同，需要将k8s的配置改为和docker一致，执行下面的命令</span></span><br><span class="line">sed -i <span class="string">"s/cgroup-driver=systemd/cgroup-driver=cgroupfs/g"</span> /etc/systemd/system/kubelet.service.d/10-kubeadm.conf</span><br></pre></td></tr></table></figure></p>
+<p>上述后续配置都完成之后，重启kubelet<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl restart kubelet</span><br></pre></td></tr></table></figure></p>
+<p>如果没出现什么问题，那么kubeadm的安装已经完成，下面就需要用kubeadm创建一个集群。</p>
+<h2 id="用kubeadm创建一个集群"><a href="#用kubeadm创建一个集群" class="headerlink" title="用kubeadm创建一个集群"></a>用kubeadm创建一个集群</h2><p><strong>1. 阅读相关网络插件说明</strong></p>
+<p>kubeadm 极大地简化了创建一个k8s集群的步骤，但它本身没有能力提供集群的网络解决方案。我们需要选择一个<strong>合适</strong>的网络解决方案。在熟悉k8s之前，我们无法判断一个网络解决方案到底合不合适，所以本次实验选择了一个比较容易上手的网络插件——flannel。不同的网络插件下，k8s初始化的步骤不同，请一定要参考相关的文档进行设置。</p>
+<p><strong>2. 手动拉取一些基础镜像</strong></p>
+<p>kubeadm在初始化的过程中会启动一系列docker镜像（而且是墙外的镜像），由于我们的服务器无法联网，我们需要在一个能够科学上网的机器上安装docker，并拉取相关的镜像。需要拉取的镜像列表如下，我用的tag是latest，目前没有遇到什么问题：</p>
+<ul>
+<li>k8s.gcr.io/kube-proxy-amd64</li>
+<li>k8s.gcr.io/kube-controller-manager-amd64</li>
+<li>k8s.gcr.io/kube-apiserver-amd64</li>
+<li>k8s.gcr.io/kube-scheduler-amd64</li>
+<li>k8s.gcr.io/etcd-amd64</li>
+<li>k8s.gcr.io/kubernetes-dashboard-amd64</li>
+<li>k8s.gcr.io/k8s-dns-dnsmasq-nanny-amd64</li>
+<li>k8s.gcr.io/k8s-dns-sidecar-amd64</li>
+<li>k8s.gcr.io/k8s-dns-kube-dns-amd64</li>
+<li>k8s.gcr.io/pause-amd64</li>
+</ul>
+<p>除了上述基础镜像，还需要拉取网络插件镜像，取决于所采用的网络方案，例如本次下载的镜像是：quay.io/coreos/flannel。如何知道k8s需要哪些镜像呢？其实如果不事先拉取镜像，直接运行<code>kubeadm init</code>，会在<code>/etc/kubernetes/manifests/</code>目录下生成一系列yml文件，这些yml文件告知了k8s在启动过程中需要哪些镜像（如果一个一个去看了的话，你会发现上述有一个镜像并不是初始化集群必须的。哈哈，不不卖关子了，就是那个dashboard，这只是一个管理k8s的web ui）。<br>如果你没有拉取镜像，而直接运行了<code>kubeadm init</code>，肯定会报错，报错之后如果想要重新安装，请一定要执行<code>kubeadm reset</code></p>
+<p>拉取完上述镜像之后，将上述镜像传输到主节点中。还有一部分镜像需要传输到从节点中，列表如下：</p>
+<pre><code>* k8s.gcr.io/kube-proxy-amd64
+* k8s.gcr.io/kubernetes-dashboard-amd64
+* k8s.gcr.io/pause-amd64
+* quay.io/coreos/flannel
+</code></pre><p>在局域网中，镜像共享需要私有镜像。传输镜像的步骤为，tag镜像，然后push到私有仓库，或者也可以采用下面的方式直接传输，避免需要不断重复tag。<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker save k8s.gcr.io/pause-amd64:3.1 | bzip2 | pv | ssh root@nodeip <span class="string">'cat | docker load'</span></span><br><span class="line"><span class="comment">#pv可以将进度可视化，需要安装一下，没有pv也一样OK</span></span><br></pre></td></tr></table></figure></p>
+<p><strong>3. 初始化集群</strong></p>
+<p>首先在主节点运行下面的命令初始化为一个集群：<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubeadm init --kubernetes-version=v1.10.0 --pod-network-cidr=10.244.0.0/16</span><br></pre></td></tr></table></figure></p>
+<p><code>kubeadm init</code> 用于初始化一个集群，后面第一参数是显示告知集群的版本，如果不设置kubeadm会去网络上下载相关的版本信息，由于我们的服务器无法联网，这一步就会出错。所以一定要添加这个命令。第二个参数是flannel相关的参数设置，其中的地址是固定的10.244.0.0/16，这是在flannel配置文件中写死的。<br>上述命令的输出很重要，大部分应该下面这样的：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">[init] Using Kubernetes version: v1.8.0</span><br><span class="line">[init] Using Authorization modes: [Node RBAC]</span><br><span class="line">[preflight] Running pre-flight checks</span><br><span class="line">[kubeadm] WARNING: starting in 1.8, tokens expire after 24 hours by default (if you require a non-expiring token use --token-ttl 0)</span><br><span class="line">[certificates] Generated ca certificate and key.</span><br><span class="line">[certificates] Generated apiserver certificate and key.</span><br><span class="line">[certificates] apiserver serving cert is signed for DNS names [kubeadm-master kubernetes kubernetes.default kubernetes.default.svc kubernetes.default.svc.cluster.local] and IPs [10.96.0.1 10.138.0.4]</span><br><span class="line">[certificates] Generated apiserver-kubelet-client certificate and key.</span><br><span class="line">[certificates] Generated sa key and public key.</span><br><span class="line">[certificates] Generated front-proxy-ca certificate and key.</span><br><span class="line">[certificates] Generated front-proxy-client certificate and key.</span><br><span class="line">[certificates] Valid certificates and keys now exist in &quot;/etc/kubernetes/pki&quot;</span><br><span class="line">[kubeconfig] Wrote KubeConfig file to disk: &quot;admin.conf&quot;</span><br><span class="line">[kubeconfig] Wrote KubeConfig file to disk: &quot;kubelet.conf&quot;</span><br><span class="line">[kubeconfig] Wrote KubeConfig file to disk: &quot;controller-manager.conf&quot;</span><br><span class="line">[kubeconfig] Wrote KubeConfig file to disk: &quot;scheduler.conf&quot;</span><br><span class="line">[controlplane] Wrote Static Pod manifest for component kube-apiserver to &quot;/etc/kubernetes/manifests/kube-apiserver.yaml&quot;</span><br><span class="line">[controlplane] Wrote Static Pod manifest for component kube-controller-manager to &quot;/etc/kubernetes/manifests/kube-controller-manager.yaml&quot;</span><br><span class="line">[controlplane] Wrote Static Pod manifest for component kube-scheduler to &quot;/etc/kubernetes/manifests/kube-scheduler.yaml&quot;</span><br><span class="line">[etcd] Wrote Static Pod manifest for a local etcd instance to &quot;/etc/kubernetes/manifests/etcd.yaml&quot;</span><br><span class="line">[init] Waiting for the kubelet to boot up the control plane as Static Pods from directory &quot;/etc/kubernetes/manifests&quot;</span><br><span class="line">[init] This often takes around a minute; or longer if the control plane images have to be pulled.</span><br><span class="line">[apiclient] All control plane components are healthy after 39.511972 seconds</span><br><span class="line">[uploadconfig] Storing the configuration used in ConfigMap &quot;kubeadm-config&quot; in the &quot;kube-system&quot; Namespace</span><br><span class="line">[markmaster] Will mark node master as master by adding a label and a taint</span><br><span class="line">[markmaster] Master master tainted and labelled with key/value: node-role.kubernetes.io/master=&quot;&quot;</span><br><span class="line">[bootstraptoken] Using token: &lt;token&gt;</span><br><span class="line">[bootstraptoken] Configured RBAC rules to allow Node Bootstrap tokens to post CSRs in order for nodes to get long term certificate credentials</span><br><span class="line">[bootstraptoken] Configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token</span><br><span class="line">[bootstraptoken] Creating the &quot;cluster-info&quot; ConfigMap in the &quot;kube-public&quot; namespace</span><br><span class="line">[addons] Applied essential addon: kube-dns</span><br><span class="line">[addons] Applied essential addon: kube-proxy</span><br><span class="line"></span><br><span class="line">Your Kubernetes master has initialized successfully!</span><br><span class="line"></span><br><span class="line">To start using your cluster, you need to run (as a regular user):</span><br><span class="line"></span><br><span class="line">  mkdir -p $HOME/.kube</span><br><span class="line">  sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config</span><br><span class="line">  sudo chown $(id -u):$(id -g) $HOME/.kube/config</span><br><span class="line"></span><br><span class="line">You should now deploy a pod network to the cluster.</span><br><span class="line">Run &quot;kubectl apply -f [podnetwork].yaml&quot; with one of the options listed at:</span><br><span class="line">  http://kubernetes.io/docs/admin/addons/</span><br><span class="line"></span><br><span class="line">You can now join any number of machines by running the following on each node</span><br><span class="line">as root:</span><br><span class="line"></span><br><span class="line">  kubeadm join --token &lt;token&gt; &lt;master-ip&gt;:&lt;master-port&gt; --discovery-token-ca-cert-hash sha256:&lt;hash&gt;</span><br></pre></td></tr></table></figure></p>
+<p>上述输出告知了后续的操作，其中最重要的就是最后的token那段，那是节点加入整个集群的关键语句，需要保存以备后续节点加入使用，如果忘记了话可以用<code>kubeadm token</code>命令进行查询。上述命令成功的话不代表集群创建成功了，后续还需要安装网络插件。</p>
+<p>（可选）如果需要以非root的身份使用k8s，那么需要切换到其用户下，执行下面的命令（该用户需要有sudo权限）：<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">mkdir -p <span class="variable">$HOME</span>/.kube</span><br><span class="line">sudo cp -i /etc/kubernetes/admin.conf <span class="variable">$HOME</span>/.kube/config</span><br><span class="line">sudo chown $(id -u):$(id -g) <span class="variable">$HOME</span>/.kube/config</span><br></pre></td></tr></table></figure></p>
+<p>如果是root用户，只需要在<code>.bash_profile</code>中添加下面一句即可。<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> KUBECONFIG=/etc/kubernetes/admin.conf</span><br></pre></td></tr></table></figure></p>
+<p><strong>4. 安装网络插件</strong></p>
+<p><em>网络插件</em> 这一块是我踩坑的密集区，大部分都是和上面的讲到的步骤有关。上述讲到的步骤漏了一步都会导致网络插件安装失败。网络插件是必须的，集群中的应用需要通过网络插件进行沟通，<strong>但是k8s并不自带网络插件</strong>。本次选择了flannel作为我们的网络插件，由于不可联网，首先我们需要通过可以联网的将相关的yml文件下载到本地然后传输到服务器。<a href="https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml" target="_blank" rel="noopener">https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml</a><br>然后执行<code>kubectl -f kube-flannel.yml</code> 开始部署网络插件。部署需要几秒钟，可以执行命令<code>kubectl get pods --all-namespaces</code>查看当前的部署状态，如果一段时间过去了所有的POD并不都是running状态，那么说明安装是失败的，那么需要一一检查上面说到步骤，检查kubeadm init的输出中有没有相关有用的信息。极有可能和防火墙以及selinux有关。</p>
+<p><strong>5. 将主节点做为工作节点</strong></p>
+<p>k8s不推荐将master节点做为工作节点，当然如果在资源有限的情况下，可以将主节点变为工作节点。执行下面的语句之后主节点也可以跑容器。<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubectl taint nodes --all node-role.kubernetes.io/master-</span><br></pre></td></tr></table></figure></p>
+<p><strong>6. 加入工作节点</strong></p>
+<p>在工作节点上输入刚才保存的kubeadm join那一串就可以将一个节点加入到集群中，加入的语句是这样的：<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubeadm join --token &lt;token&gt; &lt;master-ip&gt;:&lt;master-port&gt; --discovery-token-ca-cert-hash sha256:&lt;<span class="built_in">hash</span>&gt;</span><br></pre></td></tr></table></figure></p>
+<p>在<strong>主节点</strong>上执行<code>kubectl get nodes</code>可以看到当前的节点情况，如果很长一段时间都不是ready状态，说明加入有问题。我遇到过这个问题，经过一系列排查，发现是子节点上没有相关的镜像。按照上面提到的步骤，将一些镜像传输到节点上就可以了。如果遇到问题，执行<code>journalctl -r -u kubelet</code> 来找出问题所在吧（主节点和子节点的问题描述会不一致）！最终的输出如下：<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kubectl get nodes</span><br><span class="line">NAME                      STATUS    ROLES     AGE       VERSION</span><br><span class="line">node1   Ready     &lt;none&gt;    3d        v1.10.0</span><br><span class="line">node2   Ready     &lt;none&gt;    3d        v1.10.0</span><br><span class="line">master   Ready     master    3d        v1.10.0</span><br></pre></td></tr></table></figure></p>
+<p>安装过程如果有错误，要先执行<code>kubeadm reset</code>，不然无法重新安装。</p>
+<p>至此，一个集群的安装就已经完成了，后续将安装dashboard。dashboard虽然只是一个web ui，但是它有管理的权限，所以安装dashboard还需要额外的安全配置，内容详见下一篇文章。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/安装/" rel="tag"># 安装</a>
+          
+            <a href="/tags/docker/" rel="tag"># docker</a>
+          
+            <a href="/tags/k8s/" rel="tag"># k8s</a>
+          
+            <a href="/tags/kubernetes/" rel="tag"># kubernetes</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/20/Bash学习之变量进阶/" rel="next" title="Bash学习之变量进阶">
+                <i class="fa fa-chevron-left"></i> Bash学习之变量进阶
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/13/学习在集群中工作—NFS文件共享/" rel="prev" title="学习在集群中工作—NFS文件共享">
+                学习在集群中工作—NFS文件共享 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zNjk2NC8xMzUwMA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">MagicSong</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/magicsong" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xuetaomagicsong@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/magicsonggis" target="_blank" title="微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="http://www.zhihu.com/people/song-magic" target="_blank" title="知乎">
+                      
+                        <i class="fa fa-fw fa-android"></i>知乎</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-简介"><span class="nav-number">1.</span> <span class="nav-text">1. 简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-安装Kubernetes"><span class="nav-number">2.</span> <span class="nav-text">2. 安装Kubernetes</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Prerequisites-检查"><span class="nav-number">2.1.</span> <span class="nav-text">Prerequisites 检查</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装docker"><span class="nav-number">2.2.</span> <span class="nav-text">安装docker</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安装kudeadm"><span class="nav-number">2.3.</span> <span class="nav-text">安装kudeadm</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后续配置"><span class="nav-number">2.4.</span> <span class="nav-text">后续配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#用kubeadm创建一个集群"><span class="nav-number">2.5.</span> <span class="nav-text">用kubeadm创建一个集群</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">MagicSong</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three-waves.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

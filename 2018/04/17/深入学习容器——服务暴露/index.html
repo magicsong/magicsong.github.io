@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="network,service,kubernetes," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="docker环境下，所有的程序都运行在一个独立的空间中（类似于虚拟机），不同容器之间无法互相访问。要想访问容器中的应用，必须要借助于网络。容器能够被外界访问，这就是容器暴露。容器作为服务提供给外界访问，这是服务暴露。由于docker经常以微服务的形式存在，所以本文重点在于服务暴露。当然在介绍服务暴露之前，会介绍容器暴露作为基础。无论怎么样的，访问容器和访问服务都需要网络。">
+<meta name="keywords" content="network,service,kubernetes">
+<meta property="og:type" content="article">
+<meta property="og:title" content="深入学习容器——服务暴露">
+<meta property="og:url" content="https://magicsong.github.io/2018/04/17/深入学习容器——服务暴露/index.html">
+<meta property="og:site_name" content="魔术师的博客">
+<meta property="og:description" content="docker环境下，所有的程序都运行在一个独立的空间中（类似于虚拟机），不同容器之间无法互相访问。要想访问容器中的应用，必须要借助于网络。容器能够被外界访问，这就是容器暴露。容器作为服务提供给外界访问，这是服务暴露。由于docker经常以微服务的形式存在，所以本文重点在于服务暴露。当然在介绍服务暴露之前，会介绍容器暴露作为基础。无论怎么样的，访问容器和访问服务都需要网络。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://magicsong.github.io/2018/04/17/深入学习容器——服务暴露/docker-turtles-communication-550x400.jpg">
+<meta property="og:image" content="https://magicsong.github.io/2018/04/17/深入学习容器——服务暴露/two-container-network.png">
+<meta property="og:image" content="https://magicsong.github.io/2018/04/17/深入学习容器——服务暴露/1nNoIXGkJiDax7l5g5GxH7nTzqrqzN7Y9aBZTaXoQ8Q=.png">
+<meta property="og:updated_time" content="2018-06-20T06:22:45.319Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="深入学习容器——服务暴露">
+<meta name="twitter:description" content="docker环境下，所有的程序都运行在一个独立的空间中（类似于虚拟机），不同容器之间无法互相访问。要想访问容器中的应用，必须要借助于网络。容器能够被外界访问，这就是容器暴露。容器作为服务提供给外界访问，这是服务暴露。由于docker经常以微服务的形式存在，所以本文重点在于服务暴露。当然在介绍服务暴露之前，会介绍容器暴露作为基础。无论怎么样的，访问容器和访问服务都需要网络。">
+<meta name="twitter:image" content="https://magicsong.github.io/2018/04/17/深入学习容器——服务暴露/docker-turtles-communication-550x400.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://magicsong.github.io/2018/04/17/深入学习容器——服务暴露/"/>
+
+
+
+
+
+  <title>深入学习容器——服务暴露 | 魔术师的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">魔术师的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">好好吃饭，明天的烦恼明天再烦</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://magicsong.github.io/2018/04/17/深入学习容器——服务暴露/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="MagicSong">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="魔术师的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">深入学习容器——服务暴露</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-17T09:04:19+08:00">
+                2018-04-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>docker环境下，所有的程序都运行在一个独立的空间中（类似于虚拟机），不同容器之间无法互相访问。要想访问容器中的应用，必须要借助于网络。容器能够被外界访问，这就是容器暴露。容器作为服务提供给外界访问，这是服务暴露。由于docker经常以微服务的形式存在，所以本文重点在于服务暴露。当然在介绍服务暴露之前，会介绍容器暴露作为基础。无论怎么样的，访问容器和访问服务都需要网络。<br><a id="more"></a></p>
+</blockquote>
+<h1 id="1-访问容器"><a href="#1-访问容器" class="headerlink" title="1.访问容器"></a>1.访问容器</h1><p>访问容器分两种，一种是机器上的容器访问另一个容器，另外一个是机器之外的其他主机（可以浏览器，也可以是其他应用）访问容器。下面分段介绍。<br><img src="/2018/04/17/深入学习容器——服务暴露/docker-turtles-communication-550x400.jpg" title="容器通信"></p>
+<h2 id="容器之间互访"><a href="#容器之间互访" class="headerlink" title="容器之间互访"></a>容器之间互访</h2><p>容器之间互访又分为两种，一种是同一个机器上的互访，另外一种是不同机器上的互访。同一个机器上的访问需要借助于<strong>bridge</strong>（桥接网络）。所有在本机上创建的容器的都会连接到一个默认的网桥中（网络的名称是bridge）,bridge的一端连着容器的eth0虚拟网卡，另外一端连着主机上的虚拟网络docker0，如下图：<br><img src="/2018/04/17/深入学习容器——服务暴露/two-container-network.png" title="bridge"><br>这个默认的网络主要是用于给容器分配ip地址。但是处于这个默认的bridge中的容器并不能直接通信，想要通信需要使用<strong>自定义网桥</strong>。自定义网桥也是一个虚拟网络，<strong>其本质是设定iptables转发</strong>。原理是根据容器的IP地址的所在域，将外部访问某一个实体网卡端口的流量转发到这个IP上。从上面这段话上，可以知道，容器之间互访，iptables必须要满足两个条件：</p>
+<ol>
+<li>容器之间通信的端口可以访问，本机上不同的容器通信使用的<code>loopback</code>网络，所以和iptables没有关系。但是不同主机之间的容器互访需要这个端口打开。具体的端口通常是随机的一个大号端口，通常设定两台机器互访无限制即可。</li>
+<li>iptables 转发要打开，具体打开需要下面两个语句：<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#打开IPv4转发功能</span></span><br><span class="line">sysctl net.ipv4.conf.all.forwarding=1</span><br><span class="line"><span class="comment">#打开防火墙转发策略</span></span><br><span class="line">sudo iptables -P FORWARD ACCEPT</span><br><span class="line"><span class="comment">#上面这两个语句都不是永久的，永久的需要写入具体的配置文件。一般在安装集群的时候都会要求上面两个永久写入配置文件。请参考docker集群的安装</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>还需要说的一点，由于容器的生命周期较短，经常会重启，所以它的IP地址不是固定的，如果想要直接访问容器中的应用，可以通过下面的语句获取ip地址：<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">docker inspect <span class="variable">$CONTAINER_ID</span> | grep IPAddress</span><br></pre></td></tr></table></figure></p>
+<blockquote>
+<p>由于IP的不固定性（但是docker的ip不是随机的，而是按照一定顺序使用的），通常需要用到DNS，即创建容器时就将容器的IP地址写入DNS，那样的话就可以用过DNS中设定的名称访问容器了。具体和DNS配置的信息我还没有研究过，都是用docker现成的，后续如果需要用到可以研究一下。</p>
+</blockquote>
+<p>上面讲的配置微微有点偏题，在同一个主机上的不同容器互访没有作用（但是对下文很有作用，这里就提前打好基础。兵马未动粮草先行，😃）。下面介绍如何让同一个机器上的两个容器通信。</p>
+<h2 id="同一台主机上的容器通信"><a href="#同一台主机上的容器通信" class="headerlink" title="同一台主机上的容器通信"></a>同一台主机上的容器通信</h2><p>docker官方提供了一个方案，就是将多个容器编入同一个docker-compose，这样的话docker会为这个compose创建一个默认的自定义网络，处于这个自定义网络中的容器是互相访问没有限制的。并且这个自定义网络中的容器之间都互相配置了DNS解析，可以直接使用容器的名称代替IP地址访问。下面演示一下docker-compose。<br>首先下面是我写好的一份docker-compose文件，保存为docker-compose.yml即可。<br><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">version:</span> <span class="string">"3"</span></span><br><span class="line"><span class="attr">services:</span></span><br><span class="line"><span class="attr">  portainer-web:</span></span><br><span class="line"><span class="attr">    image:</span> <span class="string">"rdsource.tp-link.net:8088/portainer/portainer"</span></span><br><span class="line"><span class="attr">    command:</span> <span class="bullet">--templates</span> <span class="attr">http://portainer-templates/templates.json</span></span><br><span class="line"><span class="attr">    restart:</span> <span class="string">on-failure</span></span><br><span class="line"><span class="attr">    ports:</span> </span><br><span class="line"><span class="bullet">      -</span> <span class="string">"9000:9000"</span></span><br><span class="line"><span class="attr">    volumes:</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">"/opt/docker_data/portainer:/data"</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">"/var/run/docker.sock:/var/run/docker.sock"</span></span><br><span class="line"><span class="attr">    networks:</span> </span><br><span class="line"><span class="bullet">      -</span> <span class="string">portainer_net</span></span><br><span class="line"></span><br><span class="line"><span class="attr">  portainer-templates:</span></span><br><span class="line"><span class="attr">    image:</span> <span class="string">"portainer-templates"</span></span><br><span class="line"><span class="attr">    volumes:</span></span><br><span class="line"><span class="bullet">      -</span> <span class="string">"/opt/docker_data/portainer_template/templates.json:/usr/share/nginx/html/templates.json"</span> </span><br><span class="line"><span class="attr">    expose:</span> </span><br><span class="line"><span class="bullet">      -</span> <span class="string">"80"</span></span><br><span class="line"><span class="attr">    restart:</span> <span class="string">on-failure</span></span><br><span class="line"><span class="attr">    networks:</span> </span><br><span class="line"><span class="bullet">      -</span> <span class="string">portainer_net</span></span><br><span class="line">      </span><br><span class="line"><span class="attr">networks:</span></span><br><span class="line"><span class="attr">  portainer_net:</span></span><br><span class="line"><span class="attr">    driver:</span> <span class="string">bridge</span></span><br><span class="line"><span class="attr">    ipam:</span></span><br><span class="line"><span class="attr">      config:</span></span><br><span class="line"><span class="attr">       - subnet:</span> <span class="number">172.81</span><span class="number">.0</span><span class="number">.0</span><span class="string">/16</span></span><br></pre></td></tr></table></figure></p>
+<p>上面这个compose创建了两个应用，一个web应用portainer-web，应用的端口是9000，一个用于web应用的静态资源portainer-template（用nginx做代理），可以看到portainer-web访问portainer-template的80端口是直接使用它的名称而不是IP地址。同时这个compose还在最后创建了一个自定义网络，平时不需要手动创建，这次只是为了演示。上面两个应用都通过<code>networks</code>关键词加入了这个网络（为什么是networks呢？因为一个容器理所当然可以加入很多网络啦。😆）。在docker-compose文件所在目录中执行<code>docker-compose up -d</code>(<code>-d</code> 是表示后台运行)。这样docker就会启动了上述两个应用，并且还有一个叫portainer_net的bridge网络。<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@itdocker portainer]<span class="comment"># docker-compose up -d</span></span><br><span class="line">Creating network <span class="string">"portainer_portainer_net"</span> with driver <span class="string">"bridge"</span></span><br><span class="line">Creating portainer_portainer-web_1       ... <span class="keyword">done</span></span><br><span class="line">Creating portainer_portainer-templates_1 ... <span class="keyword">done</span></span><br></pre></td></tr></table></figure></p>
+<p>下面进入portainer-templates容器中看看是否可以访问portainer-web。<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">/ # ping portainer-web</span><br><span class="line">PING portainer-web (172.81.0.2): 56 data bytes</span><br><span class="line">64 bytes from 172.81.0.2: seq=0 ttl=64 time=0.197 ms</span><br><span class="line">64 bytes from 172.81.0.2: seq=1 ttl=64 time=0.132 ms</span><br><span class="line">64 bytes from 172.81.0.2: seq=2 ttl=64 time=0.182 ms</span><br><span class="line">64 bytes from 172.81.0.2: seq=3 ttl=64 time=0.186 ms</span><br><span class="line">64 bytes from 172.81.0.2: seq=4 ttl=64 time=0.175 ms</span><br><span class="line">64 bytes from 172.81.0.2: seq=5 ttl=64 time=0.131 ms</span><br><span class="line">^C</span><br><span class="line">--- portainer-web ping statistics ---</span><br><span class="line">6 packets transmitted, 6 packets received, 0% packet loss</span><br></pre></td></tr></table></figure></p>
+<p>可以看到已经ping通了。<br>用wget测试一下<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/ <span class="comment"># wget portainer-web:9000</span></span><br><span class="line">Connecting to portainer-web:9000 (172.81.0.2:9000)</span><br><span class="line">index.html           100% |********************************************************************************************************************************************|  2748   0:00:00 ETA</span><br></pre></td></tr></table></figure></p>
+<p>wget也成功了。这就说明两个容器之间的互访已经没有问题了。<br>这是docker-compose的方式（k8s集群中也提供了类似的方式），也是docker提供的同一个主机中容器间互访的解决方案，步骤主要是创建一个bridge网络，然后添加DNS解析，实现容器间互访。</p>
+<h2 id="不同主机的容器（服务）互访"><a href="#不同主机的容器（服务）互访" class="headerlink" title="不同主机的容器（服务）互访"></a>不同主机的容器（服务）互访</h2><p>这里说的不同主机间的容器互访指的是同一个集群中的不同的主机。不在同一个集群中主机中容器互访是通过主机暴露端口实现的，下文会讲到。同一个集群中的不同主机的容器互访要解决的问题主要有两个：</p>
+<ol>
+<li>服务发现。容器在集群中可能动态分布到不同主机中，ip也不固定，需要有一个中间件管理这个服务分布信息</li>
+<li>要有一个网络，无论其容器分布在哪个主机，哪个IP，其在这个网络上暴露的IP不会变，不然很有可能其他容器无法访问这个容器。</li>
+</ol>
+<p>在集群中实现容器互访，docker提供了一种<strong>overlay</strong>网络，这个overlay网络是基于<strong>swarm</strong>集群的。docker swarm集群是docker原生的集群管理工具，和docker集成度很高，所以用起来非常方便。overlay的架构图如下：<br><img src="/2018/04/17/深入学习容器——服务暴露/1nNoIXGkJiDax7l5g5GxH7nTzqrqzN7Y9aBZTaXoQ8Q=.png" title="overlay网络"><br>overlay网络是受Docker Universal Control Plane （UCP）控制的，UCP负责集群中不同主机中容器管理。UCP将跨主机的容器作为<strong>服务</strong>（service），服务发现也由UCP实现。但是这个原生的服务发现在一些简单的环境中还可以，但是一旦到了大型集群中，能力就有点捉襟见肘了（主要原因还是起步太晚，尚未成熟）。工业界比较成熟的方案是<strong>Etcd</strong>，k8s默认就是采用了这个方案。swarm在小型环境下还不错，并且支持windows，对于一些企业的小型架构来说已经够了。<br>一旦创建了一个swarm集群，那么docker就会有默认的overlay网络，叫<strong>ingress</strong>，可以自定义这个ingress网络，如修改其网域和网关等等。每一个主机都通过一个bridge和这个overlay网络连接。处于overlay网络中的服务默认是<strong>负载均衡</strong>的。即如果一个服务有多个容器，那么流量会均摊到这些容器上，采用轮询的方式选择容器（round robin）。在docker swarm中创建一个服务（只能创建服务，创建单个容器不要集群）会指定<strong>replica</strong>，表明这个服务的后端有多少个进程，这些进程以容器的形式随机分布在各个节点上。那么其他容器如何访问这个服务呢？通过<strong>服务发现</strong>，发布服务时，会将服务随机绑定在overlay网络上的某个端口上，一旦检测到这个端口的流量，就会在UCP中找到服务对应的容器，获取它的IP地址和暴露的端口（服务的容器在哪个节点，Ip是多少都是注册在UCP中），UCP将这个流量采用轮询的方式转发到对应容器中。这样一来，容器之间就能够通讯了，这是外界访问这个服务也是同样的原理。在外界看来，服务是暴露的端口，只要访问集群中任意一个节点的某个端口，就能实现访问服务。服务之间互访需要一个自定义的overlay网络而不是用默认的overlay（通过docker stack部署会自动创建），这样不同的服务之间就能互相访问了。某一个主机单单的容器只要和加入这个网络，也能实现互访，不然只能通过其暴露的端口进行访问。<br>在k8s中还要这个稍微复杂一点，这点以后再讲。</p>
+<h1 id="2-外部访问容器"><a href="#2-外部访问容器" class="headerlink" title="2.外部访问容器"></a>2.外部访问容器</h1><p>稍微学习过docker的都知道访问容器是通过容器暴露端口，并将端口映射到主机端口上。外部通过主机ip+端口进行访问。对于服务也是一样的，虽然服务的容器是随机分布到一些节点中，但是通过任意节点+端口都能访问这个应用，无论这个节点上是否有对应容器（同理，就算指定了节点+端口，也不一定能访问这个节点的容器），具体访问哪个节点是轮询的（对于用户来说基本上就是随机的了）。<br>这种情况下，如果docker上有上百个服务，那么用户访问特定应用就需要记忆特定的端口，长期以往应用管理也非常不方便。用户反映某个应用不能访问，告诉管理员端口，然后管理员还要查询这个端口对应哪个容器。天哪。😢。docker swarm 没有提供关于这个问题的解决方案，而相对成熟的k8s使用nginx解决了这个问题，使得用户可以使用子域名访问不同的应用。在这个模式下，所有的web应用都通过主机上的80端口，监控80端口的nginx根据访问的域名将请求转发到后台的服务中，如何实现将在下一篇文章中写。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>docker简化了访问容器和互相访问的操作，使得几个命令就可以实现外部和内部访问特定容器和服务。这个模式在小规模集群中非常好用，但是一旦涉及到大的集群，涉及到集群分类等等，swarm就有心无力了。在这种情况下，k8s是更好的选择。同时k8s还提供了一整套集群监控管理方案，相对于swarm更加成熟。小打小闹适合用swarm，上手极快。生产环境中建议用k8s。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/network/" rel="tag"># network</a>
+          
+            <a href="/tags/service/" rel="tag"># service</a>
+          
+            <a href="/tags/kubernetes/" rel="tag"># kubernetes</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/13/学习在集群中工作—NFS文件共享/" rel="next" title="学习在集群中工作—NFS文件共享">
+                <i class="fa fa-chevron-left"></i> 学习在集群中工作—NFS文件共享
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/19/在windows下做系统运维—个人心得/" rel="prev" title="在windows下做系统运维—个人心得">
+                在windows下做系统运维—个人心得 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zNjk2NC8xMzUwMA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">MagicSong</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/magicsong" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xuetaomagicsong@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/magicsonggis" target="_blank" title="微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="http://www.zhihu.com/people/song-magic" target="_blank" title="知乎">
+                      
+                        <i class="fa fa-fw fa-android"></i>知乎</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-访问容器"><span class="nav-number">1.</span> <span class="nav-text">1.访问容器</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#容器之间互访"><span class="nav-number">1.1.</span> <span class="nav-text">容器之间互访</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#同一台主机上的容器通信"><span class="nav-number">1.2.</span> <span class="nav-text">同一台主机上的容器通信</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#不同主机的容器（服务）互访"><span class="nav-number">1.3.</span> <span class="nav-text">不同主机的容器（服务）互访</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-外部访问容器"><span class="nav-number">2.</span> <span class="nav-text">2.外部访问容器</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">MagicSong</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three-waves.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

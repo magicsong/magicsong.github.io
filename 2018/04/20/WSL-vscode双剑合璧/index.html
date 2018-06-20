@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="docker,WSL,vs code,k8s," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="今天下午捣鼓了一下WSL，通过一些配置将WSL改造了一下，结合vs code之后，windows系统看上去越来越像一个硬盘了。下面记录下我的操作。😈😈😈😈😈😈😈😈😈😈😈😈😈">
+<meta name="keywords" content="docker,WSL,vs code,k8s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="WSL+vscode双剑合璧">
+<meta property="og:url" content="https://magicsong.github.io/2018/04/20/WSL-vscode双剑合璧/index.html">
+<meta property="og:site_name" content="魔术师的博客">
+<meta property="og:description" content="今天下午捣鼓了一下WSL，通过一些配置将WSL改造了一下，结合vs code之后，windows系统看上去越来越像一个硬盘了。下面记录下我的操作。😈😈😈😈😈😈😈😈😈😈😈😈😈">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://magicsong.github.io/2018/04/20/WSL-vscode双剑合璧/2018-04-20_173054.jpg">
+<meta property="og:image" content="https://magicsong.github.io/2018/04/20/WSL-vscode双剑合璧/2018-04-20_174901.jpg">
+<meta property="og:image" content="https://magicsong.github.io/2018/04/20/WSL-vscode双剑合璧/2018-04-20_175918.jpg">
+<meta property="og:updated_time" content="2018-06-20T06:22:45.293Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="WSL+vscode双剑合璧">
+<meta name="twitter:description" content="今天下午捣鼓了一下WSL，通过一些配置将WSL改造了一下，结合vs code之后，windows系统看上去越来越像一个硬盘了。下面记录下我的操作。😈😈😈😈😈😈😈😈😈😈😈😈😈">
+<meta name="twitter:image" content="https://magicsong.github.io/2018/04/20/WSL-vscode双剑合璧/2018-04-20_173054.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://magicsong.github.io/2018/04/20/WSL-vscode双剑合璧/"/>
+
+
+
+
+
+  <title>WSL+vscode双剑合璧 | 魔术师的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">魔术师的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">好好吃饭，明天的烦恼明天再烦</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://magicsong.github.io/2018/04/20/WSL-vscode双剑合璧/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="MagicSong">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="魔术师的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">WSL+vscode双剑合璧</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-20T17:10:19+08:00">
+                2018-04-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>今天下午捣鼓了一下WSL，通过一些配置将WSL改造了一下，结合vs code之后，windows系统看上去越来越像一个硬盘了。下面记录下我的操作。😈😈😈😈😈😈😈😈😈😈😈😈😈</p>
+</blockquote>
+<a id="more"></a>
+<p>公司给的电脑很卡，同时开WSL+docker+vscode+chrome+nodejs就已经卡的不行了，所以必须改造一下。按照我之前的<a href="https://doc.itdocker.rd.tp-link.net/2018/04/19/%E5%9C%A8windows%E4%B8%8B%E5%81%9A%E7%B3%BB%E7%BB%9F%E8%BF%90%E7%BB%B4%E2%80%94%E4%B8%AA%E4%BA%BA%E5%BF%83%E5%BE%97/#more" target="_blank" rel="noopener">文章</a>配置好WSL之后，就需要在WSL装一些软件了。由于我的工作内容主要有三部分：</p>
+<ol>
+<li>文档</li>
+<li>docker</li>
+<li>k8s</li>
+</ol>
+<p>下面针对上面三个部分依依说明。</p>
+<h1 id="文档"><a href="#文档" class="headerlink" title="文档"></a>文档</h1><p>我写文档用的markdown，word由于不支持语法高亮早早就被我抛弃了。markdown的框架用的是hexo，一个用nodejs写的静态博客框架。所以首先要在WSL中安装nodejs，记得不要用apt-get 安装，一大堆问题。直接从官网上拉编译好的二进制文件，<code>ln</code>到bin目录即可。需要<code>ln</code>的二进制文件主要是<code>node</code>和<code>npm</code>。在WSL中执行检查一下，输出如下：<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/mnt/d/blog$ node --version</span><br><span class="line">v8.9.1</span><br><span class="line">/mnt/d/blog$ npm --version</span><br><span class="line">5.5.1</span><br></pre></td></tr></table></figure></p>
+<p>Very Good。下面安装hexo，由于我司的服务器都不能上网，所以很多工作都是在离线环境下完成的。现在WSL是在windows下，终于有一个可以上网的linux啦！！ 🤣🤣🤣🤣🤣🤣🤣🤣🤣🤣。执行下面的命令安装<strong>hexo</strong>:<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo npm install -g hexo-cli</span><br></pre></td></tr></table></figure></p>
+<p>安装完之后进入我的博客文件夹，输入npm install即可。这样一来文档就配置好了。但是这里有一个瑕疵，由于SWL的限制，hexo的<strong>SFTP</strong>用不了，其实也无所谓，因为后来发现根本用不到，我用了更好的<strong>rsync</strong>。输入<code>hexo list post</code>看一下吧。<img src="/2018/04/20/WSL-vscode双剑合璧/2018-04-20_173054.jpg" title="hexo安装完成"><br>安装完成之后还需要设置SSH免密登录，步骤是先在WSL<code>ssh-keygen -t rsa</code>生成公钥和密钥，然后将公钥传输（追加，不是覆盖）到服务器的<code>~/.ssh/authorized_keys</code>文件中，这样就完成了免密登录。</p>
+<h1 id="docker"><a href="#docker" class="headerlink" title="docker"></a>docker</h1><p>我原本是在windows上安装docker的，主要目的有两个，一是去拉墙外的镜像，二是为了本地开发。去拉墙外的镜像现在已经通过一些途径解决，后面的就开始考虑用WSL代替。我的服务器是安装了docker的，现在就是要实现远程访问docker。首先要在服务器上开启这个功能，很简单，在docker.service中启动参数中添加<code>-H 0.0.0.0:2375</code>即可，添加后执行下面的命令重启docker：<br><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">systemctl daemon-reload</span><br><span class="line">systemctl restart docker</span><br></pre></td></tr></table></figure></p>
+<p>重启之后就可以看到有docker进程在监听2375端口啦。接着从docker网站上下编译好的docker包，地址在→_→：<a href="https://download.docker.com/linux/static/stable/x86_64/。下载完成之后在WSL中解压缩，然后将其中的一个名称为docker的可执行文件拖到bin目录下即可，这是docker客户端，其实就是将命令转换restful" target="_blank" rel="noopener">https://download.docker.com/linux/static/stable/x86_64/。下载完成之后在WSL中解压缩，然后将其中的一个名称为docker的可执行文件拖到bin目录下即可，这是docker客户端，其实就是将命令转换restful</a> API然后将结果呈现在命令行的工具。其余的二进制目前还用不到，可以先放着。客户端好了还需要配置远程服务器，非常简单。下面一句话：<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">export</span> DOCKER_HOST=X.X.X.X:2375</span><br></pre></td></tr></table></figure></p>
+<p>XXXX是远程服务器的地址。把这个放入.profile文件即可。<code>source</code>一下.profile文件，看一下<code>docker info</code>的执行结果吧！ 🤭🤭🤭🤭🤭🤭🤭🤭🤭🤭🤭🤭🤭🤭<br><img src="/2018/04/20/WSL-vscode双剑合璧/2018-04-20_174901.jpg" title="docker info结果"></p>
+<h1 id="kubernetes"><a href="#kubernetes" class="headerlink" title="kubernetes"></a>kubernetes</h1><p>需要访问k8s集群的话需要<code>kubectl</code>，基于我们已经安装好了docker，可以直接使用容器中的kubectl作为命令直接使用（相比原生命令慢不了多少的）。这里继续记录一下如何本地安装<strong>kubectl</strong>。和docker一样，直接从官网上下载编译好的二进制文件即可，然后+x就可以了。下面汇总一下命令：<br><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.10.0/bin/linux/amd64/kubectl</span><br><span class="line">chmod +x kubectl</span><br><span class="line">sudo mv ./kubectl /usr/<span class="built_in">local</span>/bin/kubectl</span><br></pre></td></tr></table></figure></p>
+<p>客户端安装好之后，配置一下k8s服务器，很简单，只需要将k8s集群上的<code>admin.conf</code>拖到本地的<code>.kube/config</code>即可。输入<code>kubectl cluster-info</code>看一下吧。<img src="/2018/04/20/WSL-vscode双剑合璧/2018-04-20_175918.jpg" title="kubectl命令"></p>
+<h1 id="后续"><a href="#后续" class="headerlink" title="后续"></a>后续</h1><p>一下午，终于把自己的工作环境弄的非常舒服了，现在基本上windows做系统运维都是用linux的操作了，装windows也基本上为一些个别需求了，windows上的docker也可以安静地躺在硬盘里，而不继续消耗我的内存了！</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/docker/" rel="tag"># docker</a>
+          
+            <a href="/tags/WSL/" rel="tag"># WSL</a>
+          
+            <a href="/tags/vs-code/" rel="tag"># vs code</a>
+          
+            <a href="/tags/k8s/" rel="tag"># k8s</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/19/如何在k8s中部署一个web应用/" rel="next" title="如何在k8s中部署一个web应用">
+                <i class="fa fa-chevron-left"></i> 如何在k8s中部署一个web应用
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/24/IT_Docker项目调研报告v1/" rel="prev" title="IT_Docker项目调研报告v1">
+                IT_Docker项目调研报告v1 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zNjk2NC8xMzUwMA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">MagicSong</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/magicsong" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xuetaomagicsong@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/magicsonggis" target="_blank" title="微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="http://www.zhihu.com/people/song-magic" target="_blank" title="知乎">
+                      
+                        <i class="fa fa-fw fa-android"></i>知乎</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#文档"><span class="nav-number">1.</span> <span class="nav-text">文档</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#docker"><span class="nav-number">2.</span> <span class="nav-text">docker</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#kubernetes"><span class="nav-number">3.</span> <span class="nav-text">kubernetes</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后续"><span class="nav-number">4.</span> <span class="nav-text">后续</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">MagicSong</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three-waves.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

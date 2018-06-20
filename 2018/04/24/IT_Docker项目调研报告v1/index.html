@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="docker,项目总结,容器化," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一、项目介绍目前IT课的大部分项目都有一个对应的开发测试环境，有一些是单独的一个服务器，其他一些共享一个服务器。随着项目越来越多，这些开发测试环境越来越多，DBA管理和维护这些系统的负担越来越重；一些系统共享一个服务器，但无法共享同一个端口和文件目录，使得开发和测试环境和正式的生产环境存在一些差异（环境一致性问题），无法快速实现持续集成；Docker容器化技术能够IT课开发人员提供一个简单、安全和">
+<meta name="keywords" content="docker,项目总结,容器化">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IT_Docker项目调研报告v1">
+<meta property="og:url" content="https://magicsong.github.io/2018/04/24/IT_Docker项目调研报告v1/index.html">
+<meta property="og:site_name" content="魔术师的博客">
+<meta property="og:description" content="一、项目介绍目前IT课的大部分项目都有一个对应的开发测试环境，有一些是单独的一个服务器，其他一些共享一个服务器。随着项目越来越多，这些开发测试环境越来越多，DBA管理和维护这些系统的负担越来越重；一些系统共享一个服务器，但无法共享同一个端口和文件目录，使得开发和测试环境和正式的生产环境存在一些差异（环境一致性问题），无法快速实现持续集成；Docker容器化技术能够IT课开发人员提供一个简单、安全和">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://magicsong.github.io/2018/04/24/IT_Docker项目调研报告v1/2018-04-24_105556.jpg">
+<meta property="og:image" content="https://magicsong.github.io/2018/04/24/IT_Docker项目调研报告v1/2018-04-24_110236.jpg">
+<meta property="og:image" content="https://magicsong.github.io/2018/04/24/IT_Docker项目调研报告v1/2018-04-24_110644.jpg">
+<meta property="og:image" content="https://magicsong.github.io/2018/04/24/IT_Docker项目调研报告v1/2018-04-24_111331.jpg">
+<meta property="og:image" content="https://magicsong.github.io/2018/04/24/IT_Docker项目调研报告v1/2018-04-24_112026.jpg">
+<meta property="og:image" content="https://magicsong.github.io/2018/04/24/IT_Docker项目调研报告v1/2018-04-24_112433.jpg">
+<meta property="og:updated_time" content="2018-06-20T06:22:45.284Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="IT_Docker项目调研报告v1">
+<meta name="twitter:description" content="一、项目介绍目前IT课的大部分项目都有一个对应的开发测试环境，有一些是单独的一个服务器，其他一些共享一个服务器。随着项目越来越多，这些开发测试环境越来越多，DBA管理和维护这些系统的负担越来越重；一些系统共享一个服务器，但无法共享同一个端口和文件目录，使得开发和测试环境和正式的生产环境存在一些差异（环境一致性问题），无法快速实现持续集成；Docker容器化技术能够IT课开发人员提供一个简单、安全和">
+<meta name="twitter:image" content="https://magicsong.github.io/2018/04/24/IT_Docker项目调研报告v1/2018-04-24_105556.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://magicsong.github.io/2018/04/24/IT_Docker项目调研报告v1/"/>
+
+
+
+
+
+  <title>IT_Docker项目调研报告v1 | 魔术师的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">魔术师的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">好好吃饭，明天的烦恼明天再烦</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://magicsong.github.io/2018/04/24/IT_Docker项目调研报告v1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="MagicSong">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="魔术师的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">IT_Docker项目调研报告v1</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-24T09:33:31+08:00">
+                2018-04-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="一、项目介绍"><a href="#一、项目介绍" class="headerlink" title="一、项目介绍"></a>一、项目介绍</h1><p>目前IT课的大部分项目都有一个对应的开发测试环境，有一些是单独的一个服务器，其他一些共享一个服务器。随着项目越来越多，这些开发测试环境越来越多，DBA管理和维护这些系统的负担越来越重；一些系统共享一个服务器，但无法共享同一个端口和文件目录，使得开发和测试环境和正式的生产环境存在一些差异（环境一致性问题），无法快速实现持续集成；Docker容器化技术能够IT课开发人员提供一个简单、安全和轻量化的虚拟系统，保证各个应用隔离性同时，缩短了开发人员的开发周期。而DBA只需要负责管理和维护容器和镜像，从而提高IT部门生产力。<br><a id="more"></a></p>
+<hr>
+<h1 id="二、项目完成进度"><a href="#二、项目完成进度" class="headerlink" title="二、项目完成进度"></a>二、项目完成进度</h1><h2 id="项目预定目标"><a href="#项目预定目标" class="headerlink" title="项目预定目标"></a>项目预定目标</h2><ul>
+<li style="list-style: none"><input type="checkbox" checked> 1. docker的安装部署</li>
+<li style="list-style: none"><input type="checkbox" checked> 2. 单机docker下的自动化集成测试</li>
+<li style="list-style: none"><input type="checkbox" checked> 3. 迁移smbcommunity至docker </li>
+</ul>
+<h2 id="额外功能调研"><a href="#额外功能调研" class="headerlink" title="额外功能调研"></a>额外功能调研</h2><ul>
+<li style="list-style: none"><input type="checkbox" checked> 1. docker swarm功能调研</li>
+<li style="list-style: none"><input type="checkbox" checked> 2. kubernetes 功能调研</li>
+<li style="list-style: none"><input type="checkbox" checked> 3. 分布式集群存储功能</li>
+<li style="list-style: none"><input type="checkbox" checked> 4. 集群环境下的自动化集成</li>
+</ul>
+<h2 id="进度分析"><a href="#进度分析" class="headerlink" title="进度分析"></a>进度分析</h2><p>本项目从2018年2月22日开始申请，预计到4月30日结束，项目中大部分目标都提前完成了，提前完成主要原因并不是效率高，而是对于其目标估计不够。具体的说明如下表。</p>
+<table>
+<thead>
+<tr>
+<th>主要工作节点</th>
+<th>开始时间</th>
+<th>完成时间</th>
+<th>预计耗时</th>
+<th>实际耗时</th>
+<th>延期原因简要说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>docker学习和部署</td>
+<td>2-22</td>
+<td>3-7</td>
+<td>10天</td>
+<td>10天</td>
+<td>docker的安装是非常简单的，但是申请机器，然后到权限开通期间耗费了大部分时间。考虑到本项目是一个测试项目，无法分配过多人力，实际耗时还算正常</td>
+</tr>
+<tr>
+<td>自动化集成部署</td>
+<td>3-7</td>
+<td>4-10</td>
+<td>30天</td>
+<td>18天</td>
+<td>由于事先并不熟悉一个Tomcat项目开发到部署的完整流程，多花了一些时间。实际用了18天主要是因为前期在等待机器权限的时候自学了部分内容。</td>
+</tr>
+<tr>
+<td>docker集群学习</td>
+<td>4-1</td>
+<td>至今</td>
+<td>20天</td>
+<td>——</td>
+<td>docker的主流应用还是在分布式服务上，出于个人技能提升的目的学习了分布式docker集群的相关知识。</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h1 id="三、-项目成果展示"><a href="#三、-项目成果展示" class="headerlink" title="三、 项目成果展示"></a>三、 项目成果展示</h1><h2 id="docker-部署"><a href="#docker-部署" class="headerlink" title="docker 部署"></a>docker 部署</h2><p>部署环境：CentOS 7.4 x64<br>部署文档：<a href="https://doc.itdocker.rd.tp-link.net/2018/03/14/Docker%E9%83%A8%E7%BD%B2%E6%8C%87%E5%8D%97/" target="_blank" rel="noopener">https://doc.itdocker.rd.tp-link.net/2018/03/14/Docker%E9%83%A8%E7%BD%B2%E6%8C%87%E5%8D%97/</a><br>部署截图：截图上显示已经部署了43个容器，使用了35个镜像  </p>
+<p><img src="./2018-04-24_105556.jpg" alt="docker 管理UI"></p>
+<h2 id="集群部署"><a href="#集群部署" class="headerlink" title="集群部署"></a>集群部署</h2><p>部署环境：三台CentOS 7.4 x64服务器<br>集群部署方案：<strong>kubernetes</strong><br>部署文档：<a href="https://doc.itdocker.rd.tp-link.net/2018/04/08/%E7%A7%91%E5%AD%A6%E5%AE%89%E8%A3%85%E6%9C%80%E6%96%B0%E7%89%88kubernetes/" target="_blank" rel="noopener">https://doc.itdocker.rd.tp-link.net/2018/04/08/%E7%A7%91%E5%AD%A6%E5%AE%89%E8%A3%85%E6%9C%80%E6%96%B0%E7%89%88kubernetes/</a><br>部署截图：<br><img src="./2018-04-24_110236.jpg" alt="集群管理 UI"></p>
+<h2 id="自动化持续集成测试"><a href="#自动化持续集成测试" class="headerlink" title="自动化持续集成测试"></a>自动化持续集成测试</h2><p>部署文档：<a href="https://doc.itdocker.rd.tp-link.net/2018/03/15/%E5%9C%A8docker%E4%B8%AD%E9%85%8D%E7%BD%AEjenkins/" target="_blank" rel="noopener">https://doc.itdocker.rd.tp-link.net/2018/03/15/%E5%9C%A8docker%E4%B8%AD%E9%85%8D%E7%BD%AEjenkins/</a><br>应用地址：<a href="https://jenkins.itdocker.rd.tp-link.net" target="_blank" rel="noopener">https://jenkins.itdocker.rd.tp-link.net</a><br>jenkins安装截图：<br>jenkins首页 <img src="./2018-04-24_110644.jpg" alt="jenkins首页"><br>jenkins 自动化部署SMBCommunity <img src="./2018-04-24_111331.jpg" alt="">     </p>
+<h2 id="glusterfs-分布式存储"><a href="#glusterfs-分布式存储" class="headerlink" title="glusterfs 分布式存储"></a>glusterfs 分布式存储</h2><p>说明：分布式集群中服务无法指定在特定的node节点工作，所以服务存储的地方应该和主机独立开来。通常会考虑网络存储，但介于ITDocker 是一个测试项目，不需要那么多优良的硬件资源，所以考虑利用自身硬盘组建一块分布式硬盘。glusterfs 是一个分布式存储解决方案，能够利用较多廉价服务器的硬盘空间，组成一块能够自备份自修复的硬盘，而且横向扩展方便，可以很方便地加入任意的节点。ITDocker在测试中使用了glusterfs，用于保证服务的一致性。这也是对分布式存储的一次调研。对DMS和OA系统以后的优化可能具有参考价值。</p>
+<h2 id="其他测试应用"><a href="#其他测试应用" class="headerlink" title="其他测试应用"></a>其他测试应用</h2><h3 id="集群监控Grafana"><a href="#集群监控Grafana" class="headerlink" title="集群监控Grafana"></a>集群监控Grafana</h3><p>地址：<a href="https://monitor.itdocker.rd.tp-link.net" target="_blank" rel="noopener">https://monitor.itdocker.rd.tp-link.net</a><br>应用截图：<img src="./2018-04-24_112026.jpg" alt="Grafana截图"></p>
+<h3 id="docker私有仓库"><a href="#docker私有仓库" class="headerlink" title="docker私有仓库"></a>docker私有仓库</h3><p>仓库地址：<a href="https://registry.itdocker.rd.tp-link.net" target="_blank" rel="noopener">https://registry.itdocker.rd.tp-link.net</a><br>仓库管理工具地址：<a href="https://registry-ui.itdocker.rd.tp-link.net" target="_blank" rel="noopener">https://registry-ui.itdocker.rd.tp-link.net</a><br>管理工具截图：<img src="./2018-04-24_112433.jpg" alt="私有仓库管理"></p>
+<h3 id="高可用redis主从集群"><a href="#高可用redis主从集群" class="headerlink" title="高可用redis主从集群"></a>高可用redis主从集群</h3><p>地址：TCP://172.29.41.127:26379<br>集群架构：后端为一主两从+四个哨兵，前端是nginx负载四个哨兵的Load Balancer和高可用性。<br>说明：在k8s上能够非常方便的建立一个redis主从集群，一个命令就可以为一个应用配置一个redis集群，同时还能测试redis集群的高可用性以及横向扩展能力。</p>
+<hr>
+<h1 id="四、-经验总结"><a href="#四、-经验总结" class="headerlink" title="四、 经验总结"></a>四、 经验总结</h1><h2 id="主要困难"><a href="#主要困难" class="headerlink" title="主要困难"></a>主要困难</h2><ol>
+<li>docker的主要原则就是尽量一个容器里做一件事情（低耦合），但是现有的一些项目各个模块之间耦合度太高。比如一个项目分前端和后端，为了方便在maven中装了一个前端打包插件，允许在maven中调用前端打包工具进行打包，这样一来，一次编译就能同时编译前端和后端。这种做法在单机环境是没有问题的，但是在docker下就比较为难。为此，实验时在一个Maven的镜像中安装了sencha，安装过程并不顺利。最后只能在ubuntu镜像上安装maven和sencha，总结起来就是docker为了能够完成一次性编译的任务，装了一个操作系统（占用较大空间，启动也慢）。但是如果能够做到前后端真正分离的话，一个sencha镜像和一个maven镜像就可以独立解决（而且完全可以是并行的）。</li>
+<li>维护docker集群需要写很多配置文件，需要做很多测试，如果直接在服务器上写的话，vim效率低；在本地写然后同步到服务上再运行效率也低。为此个人研究出了一套基于WSL（windows subsystem for linux）+vscode的方案，文档地址在这里(<a href="https://doc.itdocker.rd.tp-link.net/2018/04/20/WSL-vscode%E5%8F%8C%E5%89%91%E5%90%88%E7%92%A7/)，在这个方案下能够提升系统管理员测试和部署效率。" target="_blank" rel="noopener">https://doc.itdocker.rd.tp-link.net/2018/04/20/WSL-vscode%E5%8F%8C%E5%89%91%E5%90%88%E7%92%A7/)，在这个方案下能够提升系统管理员测试和部署效率。</a></li>
+<li>在部署kubernets的初期，成功搭建了一个集群之后，部署的应用只能在部署的机器上看到，集群中其他机器看不到，debug了两天才发现是节点之间UDP协议不同。当初申请文档的时候错将节点之间互相访问无限制的协议填了TCP，浪费了很多时间在这个错误排除上。以后要部署集群的时候一定要注意这个点，互访无限制要包括任何协议。网上的教程默认都不会考虑到这个限制，所以很少有人会出现这个问题，搜索了半天也搜索不到答案。</li>
+<li>k8s对安全的要求比较高，因为上面任何一个部署的容器都可以轻而易举获得root权限（通过挂载<code>/</code>目录）。许多应用部署都强制要求https，以前那种不考虑安全传输的部署方式行不通。学习了一些安全相关的知识，包括SSL和Access Control等才能开始正确部署应用。</li>
+</ol>
+<h2 id="技术积累"><a href="#技术积累" class="headerlink" title="技术积累"></a>技术积累</h2><p>本次调研算是初步完成了，下面梳理一下个人理解下的Docker对于IT课业务影响。</p>
+<h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ol>
+<li>DBA能够统一管理应用程序。如果有人问IT课开发与测试环境上有哪些应用，这个问题基本上不会有答案。docker能够轻而易举给出这个问题的答案。其次，docker能够给每一个应用分配相应的资源，提醒开发者程序的资源是有限的，从而写出优秀的代码。DBA也能更方便地管理手上的计算资源和存储资源，学会合理地进行资源分配，对一些不活动的容器进行限制，提高服务器资源利用率。</li>
+<li>硬件资源管理方便。如果docker性能真的遇到了瓶颈，需要申请服务器资源了，只需要将集群中的节点克隆一个就好了。</li>
+<li>开发人员只要提交代码，通过审核，就会自动有一个新的容器生产，提高了开发效率。</li>
+<li>分布集群下的开发讲究低耦合高内聚，因为谁也不清楚开发的应用部署在哪个节点。DMS系统就是由于很多东西写在了一起，导致后续流量上来了出现问题难以维护。所以在这种开发模式下，开发者会自己提高应用程序的内聚，让自己的应用程序打包成镜像就能在任意的节点运行。</li>
+<li>分布式集群下存储和单机也不同，集群下的存储是所有节点共享的，并且和主机分离（很多时候并不会挂载在主机上，而是让容器去挂载），如果DMS和OA采用这种模式的话，那么DMS系统就能专心处理业务逻辑，文件的备份交给存储，文件就不需要在节点间同步同时也能保证容灾性。</li>
+<li>在docker上开发的应用可以在任何能够运行docker的系统上运行，包括windows。</li>
+<li>docker集群上应用能够统一监控，日志的统一管理，后续业务上来了，可以对日志进行信息挖掘，针对热门请求优化后端逻辑。</li>
+</ol>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><ol>
+<li>分布式集群下对开发人员的代码能力有了更高的要求，高内聚低耦合的应用更适合在集群上跑，这会对现有业务代码产生影响。开发人员需要写更好甚至有可能更多的代码维护低耦合。这需要更多的精力和时间。</li>
+<li>管理分布式集群需要DBA良好的架构能力，对一些应用统一规划，诸如Tomcat应用日志等。同时对资源的调度也需要更多的经验，不至于经常出现OutOfMemory的错误。</li>
+<li>维护一个集群需要写很多脚本，DBA也需要有强大的Coding能力。</li>
+</ol>
+<p><strong>架构是为业务服务的，上述三点在人力不足的情况下很难满足，当前IT课的开发还算处于稳定状态，IT课业务是否需要部署集群还有待商榷。</strong></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>总的来说，Docker是一个让人感到惊艳的项目，它将应用隔离、部署以及资源管控都做到了一个相当可靠的程度。如果说docker是一把利剑，那么k8s就是一个善于用剑的武士，将docker的威力发挥到了极致。k8s将docker真正地带进了生产环境。如果公司的小型应用越来越多，可以考虑将k8s应用于正式环境。docker很适合我司的业务架构，在未来项目越来越多的时候，说不定可以考虑容器化公司的IT业务，将服务至于k8s云上。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/docker/" rel="tag"># docker</a>
+          
+            <a href="/tags/项目总结/" rel="tag"># 项目总结</a>
+          
+            <a href="/tags/容器化/" rel="tag"># 容器化</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/20/WSL-vscode双剑合璧/" rel="next" title="WSL+vscode双剑合璧">
+                <i class="fa fa-chevron-left"></i> WSL+vscode双剑合璧
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/27/如何恢复失联的standby数据库/" rel="prev" title="如何恢复失联的standby数据库">
+                如何恢复失联的standby数据库 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zNjk2NC8xMzUwMA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">MagicSong</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/magicsong" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xuetaomagicsong@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/magicsonggis" target="_blank" title="微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="http://www.zhihu.com/people/song-magic" target="_blank" title="知乎">
+                      
+                        <i class="fa fa-fw fa-android"></i>知乎</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一、项目介绍"><span class="nav-number">1.</span> <span class="nav-text">一、项目介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、项目完成进度"><span class="nav-number">2.</span> <span class="nav-text">二、项目完成进度</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#项目预定目标"><span class="nav-number">2.1.</span> <span class="nav-text">项目预定目标</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#额外功能调研"><span class="nav-number">2.2.</span> <span class="nav-text">额外功能调研</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#进度分析"><span class="nav-number">2.3.</span> <span class="nav-text">进度分析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三、-项目成果展示"><span class="nav-number">3.</span> <span class="nav-text">三、 项目成果展示</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#docker-部署"><span class="nav-number">3.1.</span> <span class="nav-text">docker 部署</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#集群部署"><span class="nav-number">3.2.</span> <span class="nav-text">集群部署</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自动化持续集成测试"><span class="nav-number">3.3.</span> <span class="nav-text">自动化持续集成测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#glusterfs-分布式存储"><span class="nav-number">3.4.</span> <span class="nav-text">glusterfs 分布式存储</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他测试应用"><span class="nav-number">3.5.</span> <span class="nav-text">其他测试应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#集群监控Grafana"><span class="nav-number">3.5.1.</span> <span class="nav-text">集群监控Grafana</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#docker私有仓库"><span class="nav-number">3.5.2.</span> <span class="nav-text">docker私有仓库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#高可用redis主从集群"><span class="nav-number">3.5.3.</span> <span class="nav-text">高可用redis主从集群</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#四、-经验总结"><span class="nav-number">4.</span> <span class="nav-text">四、 经验总结</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#主要困难"><span class="nav-number">4.1.</span> <span class="nav-text">主要困难</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#技术积累"><span class="nav-number">4.2.</span> <span class="nav-text">技术积累</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#优点"><span class="nav-number">4.2.1.</span> <span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#缺点"><span class="nav-number">4.2.2.</span> <span class="nav-text">缺点</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">MagicSong</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three-waves.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+  
+  
+    
+    
+  <script src="/lib/pace/pace.min.js?v=1.0.2"></script>
+  <link href="/lib/pace/pace-theme-minimal.min.css?v=1.0.2" rel="stylesheet">
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="部署,k8s,http," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="这篇文章主要论述如何在k8s中部署一个应用，并且符合k8s规范。具体部署的内容因不同的应用而异，这里会罗列一些注意事项。">
+<meta name="keywords" content="部署,k8s,http">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何在k8s中部署一个web应用">
+<meta property="og:url" content="https://magicsong.github.io/2018/04/19/如何在k8s中部署一个web应用/index.html">
+<meta property="og:site_name" content="魔术师的博客">
+<meta property="og:description" content="这篇文章主要论述如何在k8s中部署一个应用，并且符合k8s规范。具体部署的内容因不同的应用而异，这里会罗列一些注意事项。">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://magicsong.github.io/2018/04/19/如何在k8s中部署一个web应用/services-iptables-overview.svg">
+<meta property="og:image" content="https://magicsong.github.io/2018/04/19/如何在k8s中部署一个web应用/ingress.png">
+<meta property="og:updated_time" content="2018-06-20T06:22:45.313Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何在k8s中部署一个web应用">
+<meta name="twitter:description" content="这篇文章主要论述如何在k8s中部署一个应用，并且符合k8s规范。具体部署的内容因不同的应用而异，这里会罗列一些注意事项。">
+<meta name="twitter:image" content="https://magicsong.github.io/2018/04/19/如何在k8s中部署一个web应用/services-iptables-overview.svg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://magicsong.github.io/2018/04/19/如何在k8s中部署一个web应用/"/>
+
+
+
+
+
+  <title>如何在k8s中部署一个web应用 | 魔术师的博客</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">魔术师的博客</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">好好吃饭，明天的烦恼明天再烦</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://magicsong.github.io/2018/04/19/如何在k8s中部署一个web应用/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="MagicSong">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="魔术师的博客">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">如何在k8s中部署一个web应用</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-19T17:17:18+08:00">
+                2018-04-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>这篇文章主要论述如何在k8s中部署一个应用，并且符合k8s规范。具体部署的内容因不同的应用而异，这里会罗列一些注意事项。<br><a id="more"></a></p>
+</blockquote>
+<h1 id="部署应用的流程"><a href="#部署应用的流程" class="headerlink" title="部署应用的流程"></a>部署应用的流程</h1><h2 id="什么是服务"><a href="#什么是服务" class="headerlink" title="什么是服务"></a>什么是服务</h2><p>kubernetes中的最小单位是POD，POD往往是一个和几个关联的容器（<code>container</code>）。原生docker往往直接暴露的就是容器，应用通过端口直接访问容器，但是这种方式不利于负载均衡和高可用，因为一旦这个容器挂掉了或者IP改了，都会造成应用不可用。k8s中是以service作为应用访问的起点，如下图：<img src="/2018/04/19/如何在k8s中部署一个web应用/services-iptables-overview.svg" title="k8s中的服务模型"></p>
+<p>下面贴出了一个样例服务，来自于doc.itdocker.rd.tp-link.net上应用。<br><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">kind:</span> <span class="string">Service</span></span><br><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  name:</span>  <span class="string">docker-docs</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line"><span class="attr">  selector:</span></span><br><span class="line"><span class="attr">    app:</span>  <span class="string">docker-docs</span></span><br><span class="line"><span class="attr">  ports:</span></span><br><span class="line"><span class="attr">  - name:</span>  <span class="string">http</span></span><br><span class="line"><span class="attr">    port:</span>  <span class="number">80</span></span><br><span class="line"><span class="attr">    targetPort:</span>  <span class="number">80</span></span><br></pre></td></tr></table></figure></p>
+<p>上面的服务非常简单，因为大部分是默认属性了，这里论述一些关键属性。第一个是<code>selector</code>，<code>selector</code>表示选择这个service背后的实际后端的逻辑。这里的意思就是这个service选择后端具有app: docker-docs的pod，任何在这个命名空间里具有这个label的都会被选择。<code>ports</code>表示后端pod暴露的端口和自身端口的映射，其中<code>port</code>是服务自身暴露给外界的端口，<code>targetPort</code>就是后端pod的端口。这样一个服务就定义好了，它自身暴露了80端口，然后把经过自身80端口的流量转发给后端的POD处理（默认选择的方式是round-robin）。<strong>这里有个注意点</strong>，虽然service能够把流量转发到后端POD，但是当我们按照此文真正部署完一个应用之后，实际的流量是通过nginx控制的（名称叫ingress），service只是起一个后端发现的作用。当然还有一些其他的部署方式（不走本文的方法，用proxy，用nodePort），它们的流量是过service转发的。</p>
+<h2 id="Deployment"><a href="#Deployment" class="headerlink" title="Deployment"></a>Deployment</h2><p>写好service之后就要写真正处理逻辑的后端，后端可以直接写<code>POD</code>，也可以用<code>Deployment</code>，本文推荐用<code>Deployment</code>，<code>Deployment</code>可以控制应用的可用数量，并且控制如何在集群节点上分布我们的应用。下面贴上一个我写的Deployment。<br><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">extensions/v1beta1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Deployment</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">docker-docs</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line"><span class="attr">  replicas:</span> <span class="number">2</span></span><br><span class="line"><span class="attr">  template:</span></span><br><span class="line"><span class="attr">    metadata:</span></span><br><span class="line"><span class="attr">      labels:</span></span><br><span class="line"><span class="attr">        app:</span> <span class="string">docker-docs</span></span><br><span class="line"><span class="attr">        editor:</span> <span class="string">vscode</span></span><br><span class="line"><span class="attr">    spec:</span></span><br><span class="line"><span class="attr">      imagePullSecrets:</span></span><br><span class="line"><span class="attr">        - name:</span> <span class="string">pull-secret</span></span><br><span class="line"><span class="attr">      containers:</span></span><br><span class="line"><span class="attr">        - name:</span> <span class="string">docker-docs</span></span><br><span class="line"><span class="attr">          image:</span> <span class="string">rdsource.tp-link.net:8088/nginx:alpine</span></span><br><span class="line"><span class="attr">          ports:</span></span><br><span class="line"><span class="attr">          - name:</span>  <span class="string">http</span></span><br><span class="line"><span class="attr">            containerPort:</span>  <span class="number">80</span></span><br><span class="line"><span class="attr">            protocol:</span> <span class="string">TCP</span></span><br><span class="line"><span class="attr">          volumeMounts:</span></span><br><span class="line"><span class="attr">            - name:</span>  <span class="string">document-storage</span></span><br><span class="line"><span class="attr">              mountPath:</span>  <span class="string">/usr/share/nginx/html</span></span><br><span class="line"><span class="attr">      volumes:</span></span><br><span class="line"><span class="attr">        - name:</span>  <span class="string">document-storage</span></span><br><span class="line"><span class="attr">          hostPath:</span></span><br><span class="line"><span class="attr">            path:</span>  <span class="string">/opt/docker_files/documents</span></span><br></pre></td></tr></table></figure></p>
+<p>上面这个的Deployment简单部署了一个nginx应用（读取静态HTML并显示出来）。可以看到replica是2，说明会在集群中部署两个POD，作为一个简单的负载均衡和高可用。POD通过<code>containerPort</code>属性暴露了80端口，这个和上面的service中的<code>targetPort</code>是一致的，不一致会导致服务不可用。Deployment指定了需要的镜像和镜像名称。这里也有一个注意事项，就是私有仓库拉取。我司的私有仓库是一个代理，拉取镜像要有用户名和密码。在主机上操作一次时，只要用<code>docker login</code>一次，以后就不用再登录了，具体的登录信息会保存在<code>~/.docker/config.json</code>中。这个登录信息是会过期的，我在测试的时候一般是重启之后就会过期，需要重新登录。但是k8s不会使用上述登录信息，所以每次从私有仓库拉取镜像（如果需要用户名和密码）都必须指定secret，上面语句中的<code>imagePullSecrets</code>就是这个secret。secret的生成模板如下：</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Secret</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  name:</span>  <span class="string">pull-secret</span></span><br><span class="line"><span class="attr">data:</span></span><br><span class="line">  <span class="string">.dockerconfigjson:</span> <span class="string">XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX</span></span><br><span class="line"><span class="attr">type:</span> <span class="string">kubernetes.io/dockerconfigjson</span></span><br></pre></td></tr></table></figure>
+<p>其中的<code>.dockerconfigjson</code>就是<code>cat ~/.docker/config.json</code>的输出结果。需要注意的是secret不能在不同的namespaces中共享，需要为每一个namespace建立一个secret（这个有点设计不合理了，我觉得）。</p>
+<h2 id="访问服务"><a href="#访问服务" class="headerlink" title="访问服务"></a>访问服务</h2><p>至此，一个服务和它的后端都建立起来了。但是外界是无法访问这个服务的，而集群内部可以通过[serviceName].[namespace]的格式访问。大部分服务都是要提供给外界的，那么如果访问呢？有多种方式：</p>
+<ol>
+<li>在service中配置<ul>
+<li>将service的type设置为<code>nodePort</code>，那么系统会随机为服务分配一个30000以上的端口号，然后通过任意节点+这个端口号进行访问。缺点很明显，端口号很大，不容易记住，而且是随机的。</li>
+<li>将service的type设置为<code>loadBalancer</code>，让集群的云服务商提供一个外部ip作为VIP访问这个服务。这是在云服务中通用的，但是在私有集群中难以实现。</li>
+<li>用<code>kubectl proxy</code>做代理，访问服务。缺点很明显，每次访问都要做代理，而且只有执行<code>kubectl proxy</code>的那个主机才能访问。但也有优点，非常安全。对于一些安全级别很高的应用，应当使用这个方式。</li>
+</ul>
+</li>
+<li>用ingress<br><strong>ingress</strong>表示了一个应用的入口配置，它是通过<code>ingress controller</code>实现的。<strong>ingress controller</strong>的简介如下：<blockquote>
+<p>Configuring a webserver or loadbalancer is harder than it should be. Most webserver configuration files are very similar. There are some applications that have weird little quirks that tend to throw a wrench in things, but for the most part you can apply the same logic to them and achieve a desired result.<br>The Ingress resource embodies this idea, and an Ingress controller is meant to handle all the quirks associated with a specific “class” of Ingress.<br>An Ingress Controller is a daemon, deployed as a Kubernetes Pod, that watches the apiserver’s /ingresses endpoint for updates to the Ingress resource. Its job is to satisfy requests for Ingresses.</p>
+</blockquote>
+</li>
+</ol>
+<p>ingress controller主要作用就是负载均衡和web应用配置，ingress controller本身也是一个服务，它将自身的特定端口暴露在外部世界中，外部通过域名访问时，ingress controller会通过域名规则将流量转发到指定的后端（Endpoints）。这里有一个小知识点，ingress controller是直接转发到后端POD上的，而不是转到服务上，大家知道服务是round-robin的方式选择后端的，而ingresscontroller可以实现更加灵活的选择方式，比如权重啊等等。看到这，大家肯定有疑问，这不就是<strong>nginx</strong>吗？哈哈，就是<strong>nginx</strong>实现的模式，k8s官方推荐的也是用nginx加工的，相比原生nginx，ingress controller最大的特点就是nginx的配置文件自动生成，我们不需要为所有的应用去写nginx语法，仅仅只需要一个ingress文件即可。所以要想使用ingress，就必须先安装ingress controller。安装过程见我其他文章（TODO）。<br>下面贴上我们的ingress:<br><figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">extensions/v1beta1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Ingress</span></span><br><span class="line"><span class="attr">metadata:</span></span><br><span class="line"><span class="attr">  annotations:</span></span><br><span class="line">    <span class="string">nginx.ingress.kubernetes.io/proxy-read-timeout:</span> <span class="string">"600"</span></span><br><span class="line">    <span class="string">nginx.ingress.kubernetes.io/proxy-send-timeout:</span> <span class="string">"600"</span></span><br><span class="line">    <span class="string">kubernetes.io/tls-acme:</span> <span class="string">'true'</span></span><br><span class="line"><span class="attr">  name:</span> <span class="string">docker-docs</span></span><br><span class="line"><span class="attr">spec:</span></span><br><span class="line"><span class="attr">  tls:</span></span><br><span class="line"><span class="attr">  - hosts:</span></span><br><span class="line"><span class="bullet">    -</span> <span class="string">doc.itdocker.rd.tp-link.net</span></span><br><span class="line"><span class="attr">    secretName:</span> <span class="string">itdocker-tls</span></span><br><span class="line"><span class="attr">  rules:</span></span><br><span class="line"><span class="attr">  - host:</span> <span class="string">doc.itdocker.rd.tp-link.net</span></span><br><span class="line"><span class="attr">    http:</span></span><br><span class="line"><span class="attr">      paths:</span></span><br><span class="line"><span class="attr">      - backend:</span></span><br><span class="line"><span class="attr">          serviceName:</span> <span class="string">docker-docs</span></span><br><span class="line"><span class="attr">          servicePort:</span> <span class="number">80</span></span><br><span class="line"><span class="attr">        path:</span> <span class="string">/</span></span><br></pre></td></tr></table></figure></p>
+<p>上述ingress是一个加持了https的配置，其中<code>host</code>和<code>hosts</code>属性指定了访问的域名，即用户通过<code>doc.itdocker.rd.tp-link.net</code>这个域名访问，ingress controller就能识别用户是想要访问后端的一个docker-docs的服务。这里虽然写了服务，但是实际流量是直接转发到后端POD上的哦，服务只是作为一个查询中介（这个小原理不知道也无所谓 😇😇😇😇😇😇）。<code>path</code>可以指定域名后的路径，我在使用后面路径的时候常常遇到404的问题，主要是因为用户通过带路径的域名访问时，一些应用的一些资源是用的绝对路径，比如我们ingress指定了<code>docker.net/a</code>转发到a应用，但是a应用中某个资源路径是从根目录开始的，比如/api/XXX，a应用这么请求肯定找不到资源，因为按照我们的ingress设置，路径应当为/a/api/XXX才能正确转发。有些应用支持baseURL属性，有了baseURL，它的所有请求都是带baseURL的，这种应用就可以通过路径的方式区别开来。而其他不支持baseURL的应用在这种模式下很容易出错。无奈之下，我申请了域名的子域名通配符，这样一来，我就可以按照我的设计为docker上的应用配置ingress和其域名。<br>上述ingress使用了SSL证书，所以访问这个应用时会自动跳转到ingress controller的443端口，SSL证书和密钥存放在上述<code>itdocker-tls</code>这个密钥中。可以看到https加密是在前端nginx做的，而不是后端，后端还是80端口。为了用户能够正确访问，需要将域名绑定到集群中的任意一个节点，我绑定到了我的master节点。当然也可以搞一个虚拟IP。虚拟IP的方式比较合理，我还没有尝试，下次可以试试。</p>
+<p>至此，将上述所有文件apply一下，一个完整的应用就好了。下图整理了本文的思路，具体的流程就如下：<img src="/2018/04/19/如何在k8s中部署一个web应用/ingress.png" title="ingress controller原理简图"></p>
+<h1 id="后续"><a href="#后续" class="headerlink" title="后续"></a>后续</h1><p>ingress controller是部署在L7,但是很多应用需要在L4上部署（mysql,redis,git clone），如何利用ingress暴露TCP服务我还要继续研究一下。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/部署/" rel="tag"># 部署</a>
+          
+            <a href="/tags/k8s/" rel="tag"># k8s</a>
+          
+            <a href="/tags/http/" rel="tag"># http</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/19/在windows下做系统运维—个人心得/" rel="next" title="在windows下做系统运维—个人心得">
+                <i class="fa fa-chevron-left"></i> 在windows下做系统运维—个人心得
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/20/WSL-vscode双剑合璧/" rel="prev" title="WSL+vscode双剑合璧">
+                WSL+vscode双剑合璧 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zNjk2NC8xMzUwMA=="></div>
+    </div>
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">MagicSong</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">24</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/magicsong" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:xuetaomagicsong@gmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://weibo.com/magicsonggis" target="_blank" title="微博">
+                      
+                        <i class="fa fa-fw fa-weibo"></i>微博</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="http://www.zhihu.com/people/song-magic" target="_blank" title="知乎">
+                      
+                        <i class="fa fa-fw fa-android"></i>知乎</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#部署应用的流程"><span class="nav-number">1.</span> <span class="nav-text">部署应用的流程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#什么是服务"><span class="nav-number">1.1.</span> <span class="nav-text">什么是服务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Deployment"><span class="nav-number">1.2.</span> <span class="nav-text">Deployment</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#访问服务"><span class="nav-number">1.3.</span> <span class="nav-text">访问服务</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#后续"><span class="nav-number">2.</span> <span class="nav-text">后续</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; 2017 &mdash; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">MagicSong</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+  
+  
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three.min.js"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/three/three-waves.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
